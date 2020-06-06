@@ -293,6 +293,7 @@ func Main(configPath string, configTest bool, buildVersion string) {
 	//handshakeAcceptedMACKeys := config.GetStringSlice("handshake_mac.accepted_keys", []string{})
 
 	serveDns := config.GetBool("lighthouse.serve_dns", false)
+	serveWeb := config.GetBool("lighthouse.serve_web", false)
 	checkInterval := config.GetInt("timers.connection_alive_interval", 5)
 	pendingDeletionInterval := config.GetInt("timers.pending_deletion_interval", 10)
 	ifConfig := &InterfaceConfig{
@@ -353,6 +354,11 @@ func Main(configPath string, configTest bool, buildVersion string) {
 	if amLighthouse && serveDns {
 		l.Debugln("Starting dns server")
 		go dnsMain(hostMap, config)
+	}
+	if amLighthouse && serveWeb {
+		l.Debugln("Starting web server")
+		go startWeb(hostMap, config.GetString("lighthouse.web_addr", "localhost:8089"),
+			config.GetString("lighthouse.web_token", "<fake token>"))
 	}
 
 	// Just sit here and be friendly, main thread.
